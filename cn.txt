@@ -5,7 +5,11 @@ AIM:  To simulate and study the link state routing algorithm using simulation.
 SOFTWAREREQUIRED:
 NS-2
 THEORY:
-The Link State (LS) routing protocol has two components such as routing agent and route logic. The routing agent exchanges routing packet with neighbors in the link state manner while the route logic does Dijkstra on exploiting the information gathered by the routing agents to perform the actual route computation. The test6.tcl shows the sample TCL code that runs the application with LS routing protocol.
+The Link State (LS) routing protocol has two components such as routing agent and route logic. 
+The routing agent exchanges routing packet with neighbors in the link state manner while the 
+route logic does Dijkstra on exploiting the information gathered by the routing agents to perform
+the actual route computation. The test6.tcl shows the sample TCL code that runs the application 
+with LS routing protocol.
 ALGORITHM:
 1. Create a simulator object
 2. Define different colors for different data flows
@@ -124,21 +128,21 @@ ALGORITHM:
 Program :
 
 # Filename: linkfail.tcl
-#——-Event scheduler object creation——–# 
+#â€”â€”-Event scheduler object creationâ€”â€”â€“# 
 set ns [new Simulator]
-#———-creating trace objects—————-# 
+#â€”â€”â€”-creating trace objectsâ€”â€”â€”â€”â€”-# 
 set nt [open test2.tr w]
 $ns trace-all $nt
-#———-creating nam objects—————-# 
+#â€”â€”â€”-creating nam objectsâ€”â€”â€”â€”â€”-# 
 set nf [open test2.nam w]
 $ns namtrace-all $nf
-#———-Setting color ID—————-#
+#â€”â€”â€”-Setting color IDâ€”â€”â€”â€”â€”-#
 $ns color 1 darkmagenta
 $ns color 2 yellow                                                                                                   
 $ns color 3 blue
 $ns color 4 green
 $ns color 5 black
-#———- Creating Network—————-# 
+#â€”â€”â€”- Creating Networkâ€”â€”â€”â€”â€”-# 
 set client0 [$ns node]
 set client1 [$ns node]
 set client2 [$ns node]
@@ -150,7 +154,7 @@ set router4 [$ns node]
 set router5 [$ns node]
 set router6 [$ns node]
 set server [$ns node]
-#———- Creating Duplex Link—————-#
+#â€”â€”â€”- Creating Duplex Linkâ€”â€”â€”â€”â€”-#
 $ns duplex-link $client0 $router1 1Mb 10ms DropTail
 $ns duplex-link $client1 $router1 1Mb 10ms DropTail
 $ns duplex-link $client2 $router1 1Mb 10ms DropTail
@@ -178,7 +182,7 @@ $ns duplex-link-op $router5 $router6 orient right
 $ns duplex-link-op $router6 $server orient right
 
 
-#————Labelling—————-#
+#â€”â€”â€”â€”Labellingâ€”â€”â€”â€”â€”-#
 $ns at 0.0 "$client0 label Client1"
 $ns at 0.0 "$client1 label Client2"
 $ns at 0.0 "$client2 label Client3"
@@ -209,7 +213,7 @@ $router4 shape square
 $router5 shape square 
 $router6 shape square 
 
-#————Data Transfer between Nodes—————-# 
+#â€”â€”â€”â€”Data Transfer between Nodesâ€”â€”â€”â€”â€”-# 
 # Defining a transport agent for sending#
 set tcp [new Agent/TCP]
 $ns attach-agent $client0 $tcp
@@ -228,7 +232,7 @@ $tcp set fid_ 4
 $ns at 1.0 "$ftp start"
 # data packet generation ending time
 $ns at 6.0 "$ftp stop" 
-#———finish pocedure——–# 
+#â€”â€”â€”finish pocedureâ€”â€”â€“# 
 
 $ns attach-agent $client0 $tcp
 $ns attach-agent $server $sink 
@@ -242,21 +246,21 @@ $ns at 1.0 "$ftp start"
 # data packet generation ending time
 $ns at 6.0 "$ftp stop" 
 
-#———— Link Failure ————–#
+#â€”â€”â€”â€” Link Failure â€”â€”â€”â€”â€“#
  
 $ns rtmodel-at 2.880511 down $router3 $router4 
 
-#———— Link Failure Recovery ————–#
+#â€”â€”â€”â€” Link Failure Recovery â€”â€”â€”â€”â€“#
 
 $ns rtmodel-at 5.880511 up $router3 $router4
 
-#———finish pocedure——–# 
+#â€”â€”â€”finish pocedureâ€”â€”â€“# 
 proc finish {} {
 global ns nf nt
 $ns flush-trace 
 close $nf 
 close $nt
-puts "running nam…" 
+puts "running namâ€¦" 
 exec nam test2.nam & 
 exit 0
 }
@@ -264,7 +268,7 @@ exit 0
 $ns at 10.0 "finish"
 $ns run
 
-#——— Execution ——–# ns linkfail.tcl 
+#â€”â€”â€” Execution â€”â€”â€“# ns linkfail.tcl 
 #____Trace file ____ # gedit test2.tr
 # awk File for Throughput
 BEGIN {
@@ -339,7 +343,12 @@ Aim: To Write a program for TCP and UDP communication between Clients and Server
 SOFTWAREREQUIRED:
 NS-2
 THEORY:
-Traditionally the transport layer was represented in TCP/IP by two protocols: TCP and UDP. IP is a host-to-host protocol ,meaning that it can deliver a packet from one physical device to another . UDP and TCP are transport level protocols responsible for delivery of a message from a process (running program) to another process. A new transport layer protocol, SCTP, has been devised to meet the needs of some newer applications.
+Traditionally the transport layer was represented in TCP/IP by two protocols:
+TCP and UDP. IP is a host-to-host protocol ,meaning that it can deliver a packet 
+from one physical device to another . UDP and TCP are transport level protocols 
+responsible for delivery of a message from a process (running program) to another 
+process. A new transport layer protocol, SCTP, has been devised to meet the needs
+of some newer applications.
 ALGORITHM:
 
 1. Create a simulator object
@@ -416,7 +425,7 @@ global ns nf nt
 $ns flush-trace
 close $nf
 close $nt
-puts "running namâ€¦"
+puts "running namÃ¢â‚¬Â¦"
 exec nam exp1.nam &
 exit 0 
 }
@@ -647,7 +656,7 @@ global ns nf nt
 $ns flush-trace
 close $nf
 close $nt
-puts "running namâ€¦"
+puts "running namÃ¢â‚¬Â¦"
 exec nam test1.nam &
 exit 0
 }
@@ -796,7 +805,7 @@ network11.0.0.0
 network12.0.0.0
 network 172.16.0.0doshow ip route
 Display the result
-D–indicates EIGRP protocol
+Dâ€“indicates EIGRP protocol
    R3:
 Enable
 Show ip
@@ -808,7 +817,7 @@ ip routeend
 show ip protocols
 show ip EIGRP neighbors showip EIGRP topology
 Display the result
-D–indicates EIGRP  protocol
+Dâ€“indicates EIGRP  protocol
 
    OUTPUT: Verify the communication
 PC-1: ip config
@@ -876,7 +885,7 @@ Routing Internet Protocol packets. The Internet Engineering Task Force introduce
 The Highest Address in a Subnet Range is the Broad cast address
 To determine the number of subnets (n is the number of bits used)= 2nTo determine number of Hosts = 2n-2
 1. Information about network portion and host portion in the IP address is 192.168.1.0/24.Assume number of networks is 25. Then calculate a) Subnet Mask b) Slash format c)Number of networks d) Number of hosts per network.
-Given IP Address is in class–C
+Given IP Address is in classâ€“C
 
 
 IPAddress: 192.168.1.0
@@ -889,10 +898,18 @@ a) Subnet Mask: 255.255.255.0
 : 192.168.1.0/29
 b) Subnet mask in slash format:192.168.1.0/29
 c) Number of Networks =2N
-Where N is the number of 1’s= 5
+Where N is the number of 1â€™s= 5
 Number of Networks =2N=25=32.
 d) Number of hosts per network =2H- 2(H is the number of zeros)
 =23-2 =8 -2 =6.
+
+
+
+
+
+
+
+
 8 (A) Implement Routing Information Protocol.
 AIM: To Implement the Routing Information Protocol.
 
@@ -900,9 +917,19 @@ SOFTWAREREQUIRED:
 
 NS-2/3
 THEORY:
-Routing Information Protocol (RIP) is a dynamic routing protocol that uses hop count as a routing metric to find the best path between the source and the destination network. It is a distance-vector routing protocol that has an A value of 120 and works on the Network layer of the OSI model. RIP uses port number 520.
+Routing Information Protocol (RIP) is a dynamic routing protocol that uses
+hop count as a routing metric to find the best path between the source and 
+the destination network. It is a distance-vector routing protocol that has 
+an A value of 120 and works on the Network layer of the OSI model. RIP uses 
+port number 520.
 Hop Count	
-Hop count is the number of routers occurring in between the source and destination network. The path with the lowest hop count is considered as the best route to reach a network and therefore placed in the routing table. RIP prevents routing loops by limiting the number of hops allowed in a path from source and destination. The maximum hop count allowed for RIP is 15 and a hop count of 16 is considered as network unreachable.
+Hop count is the number of routers occurring in between the source and 
+destination network. The path with the lowest hop count is considered as the 
+best route to reach a network and therefore placed in the routing table. RIP 
+prevents routing loops by limiting the number of hops allowed in a path from 
+source and destination. The maximum hop count allowed for RIP is 15 and a hop
+count of 16 is considered as network unreachable.
+
 PROGRAM:
 
 FromR1:
@@ -925,18 +952,38 @@ doshow ip route
 
 OUTPUT: Verify the Communication
 
-pc – 1ipconfig
+pc â€“ 1ipconfig
 ping172.16.0.2
 ping10.0.0.2
 trace rt10.0.0.2
+
+
+
 8 (b) Create Various Network Topologies with N-Nodes STARTOPOLOGY
 
    AIM: To create scenario and study the performance of token ring protocols through simulation.
 SOFTWAREREQUIREMENTS: NS-2
    THEORY:
-Star networks are one of the most common computer network topologies. In its simplest form, a star network consists of one central switch, hub or computer, which acts as a conduit to transmit messages. This consists of a central node, to which all other nodes are connected; this central node provides a common connection point for all nodes through a hub. In star topology, every node (computer work station or any other peripheral) is connected to a central node called a hub or switch. The switch is the server and the peripherals are the clients. Thus, the hub and leaf nodes, and the transmission lines between them, form a graph with the topology of a star. If the central node is passive, the originating node must be able to tolerate the reception of an echo of its own transmission, delayed by the two-way transmission time (i.e. to and from the central node) plus any delay generated in the central node. An active star network has an active central node that usually has the means to prevent echo-related problems.
-The star topology reduces the damage caused by line failure by connecting all of the systems to a central node. When applied to a bus-based network, this central hub rebroadcasts all transmissions received from any peripheral node to all peripheral nodes on the network, sometimes including the originating node. All peripheral nodes may thus communicate with all others by transmitting to, and receiving from, the centralnodeonly.Thefailureofatransmissionlinelinkinganyperipheralnodetothecentralnodewillresultintheisolationofthatperipheral node from all others, but there set of the systems will be unaffected.
-   ALGORITHM:
+Star networks are one of the most common computer network topologies. In its simplest 
+form, a star network consists of one central switch, hub or computer, which acts as a
+conduit to transmit messages. This consists of a central node, to which all other nodes
+are connected; this central node provides a common connection point for all nodes 
+through a hub. In star topology, every node (computer work station or any other 
+peripheral) is connected to a central node called a hub or switch. The switch is the
+server and the peripherals are the clients. Thus, the hub and leaf nodes, and the 
+transmission lines between them, form a graph with the topology of a star. If the 
+central node is passive, the originating node must be able to tolerate the reception 
+of an echo of its own transmission, delayed by the two-way transmission time (i.e. to 
+and from the central node) plus any delay generated in the central node. An active star
+network has an active central node that usually has the means to prevent echo-related problems.
+The star topology reduces the damage caused by line failure by connecting all of the 
+systems to a central node. When applied to a bus-based network, this central hub rebroadcasts
+all transmissions received from any peripheral node to all peripheral nodes on the network, 
+sometimes including the originating node. All peripheral nodes may thus communicate with all
+others by transmitting to, and receiving from, the centralnodeonly.Thefailureofatransmissionlinelinkinganyperipheralnodetothecentralnodewillresult
+intheisolationofthatperipheral node from all others, but there set of the systems will be unaffected.
+
+ALGORITHM:
 1. Create a simulator object
 2. Define different colors for different data flows
 3. Open a nam trace file and define finish procedure then close the trace file, and execute nam on trace file.
