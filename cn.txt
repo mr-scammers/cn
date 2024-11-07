@@ -1,0 +1,1102 @@
+1 . Implementation of Link State Routing Protocol.
+
+
+AIM:  To simulate and study the link state routing algorithm using simulation.
+SOFTWAREREQUIRED:
+NS-2
+THEORY:
+The Link State (LS) routing protocol has two components such as routing agent and route logic. The routing agent exchanges routing packet with neighbors in the link state manner while the route logic does Dijkstra on exploiting the information gathered by the routing agents to perform the actual route computation. The test6.tcl shows the sample TCL code that runs the application with LS routing protocol.
+ALGORITHM:
+1. Create a simulator object
+2. Define different colors for different data flows
+3. Open a nam trace file and define finish procedure then close the trace file , and execute nam on trace file.
+4. Create n number of nodes using for loop
+5. Create duplex links between the nodes
+6. Set up UDP Connection between n(0) and n(5)
+7. Set up another UDP connection between n(1) and n(5)
+8. Apply CBR Traffic over both UDP connections
+9. ChooseLinkstateroutingprotocoltotransmitdatafromsendertoreceiver.
+10. Schedule events and run the program.
+
+Program:
+
+set ns [new Simulator]
+set nr [open thro.tr w]
+$ns trace-all $nr
+set nf [open thro.nam w]
+$ns namtrace-all $nf
+proc finish {} {
+global ns nr nf
+$ns flush-trace
+close $nf
+close $nr
+exec nam thro.nam &
+exit 0
+}
+for { set i 0 } { $i < 12} { incr i 1 } {
+set n($i) [$ns node]
+}
+for {set i 0} {$i < 8} {incr i 1} {
+$ns duplex-link $n($i) $n([expr $i+1]) 1Mb 10ms DropTail }
+$ns duplex-link $n(0) $n(8) 1Mb 10ms DropTail
+$ns duplex-link $n(1) $n(10) 1Mb 10ms DropTail
+$ns duplex-link $n(0) $n(9) 1Mb 10ms DropTail
+$ns duplex-link $n(9) $n(11) 1Mb 10ms DropTail
+$ns duplex-link $n(10) $n(11) 1Mb 10ms DropTail
+$ns duplex-link $n(11) $n(5) 1Mb 10ms DropTail
+set udp0 [new Agent/UDP]
+$ns attach-agent $n(0) $udp0
+set cbr0 [new Application/Traffic/CBR]
+$cbr0 set packetSize_ 500
+$cbr0 set interval_ 0.005
+$cbr0 attach-agent $udp0
+set null0 [new Agent/Null]
+$ns attach-agent $n(5) $null0
+$ns connect $udp0 $null0
+set udp1 [new Agent/UDP]
+$ns attach-agent $n(1) $udp1
+set cbr1 [new Application/Traffic/CBR]
+$cbr1 set packet Size_ 500
+$cbr1 set interval_ 0.005
+$cbr1 attach-agent $udp1
+set null0 [new Agent/Null]
+$ns attach-agent $n(5) $null0
+$ns connect $udp1 $null0
+$ns rtproto LS
+$ns rtmodel-at 10.0 down $n(11) $n(5)
+$ns rtmodel-at 15.0 down $n(7) $n(6)
+$ns rtmodel-at 30.0 up $n(11) $n(5)
+$ns rtmodel-at 20.0 up $n(7) $n(6)
+$udp0 set fid_ 1
+$udp1 set fid_ 2
+$ns color 1 Red
+$ns color 2 Green
+$ns at 1.0 "$cbr0 start"
+$ns at 2.0 "$cbr1 start"
+$ns at 4.5 "finish"
+$ns run
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2. Write a program to create a network and analyze its performance by varying its parameters.
+
+EXP.No.3 Create A Network And Analyze Its Performance
+Aim: To write a program to create a network and analyze its performance by vary insight parameters
+
+      SOFTWAREREQUIRED:
+NS-2
+THEORY:
+Today when we speak of networks, we are generally referring to two primary categories:
+Local-area networks and wide-area networks. The category into which a network falls is determined by its size. A LAN normally covers an area less than 2 mi; a WAN can be worldwide. Networks of a size in between are normally referred to as metropolitan area networks and span tens of miles.
+
+Local Area Network
+A local area network (LAN) is usually privately owned and links the devices in a single office, building, or campus (see Figure 1.10). Depending on the needs of an organization and the type of technology used, a LAN can be as simple as two PCs and a printer in someone's home office; or it can extend throughout a company and include audio and video peripherals. Currently, LAN sizeis limitedto a fewkilometres.
+Wide Area Network
+A wide area network (WAN) provides long-distance transmission of data, image, audio, and video information over large geographic areas that may comprise a country, a continent, or even the whole world .In Chapters 17 and 18 we discuss wide-area networks in greater detail. A WAN can be as complex as the back bones that connect the Internet or as simple as a dial-up line that connects a home computer to theInternet.WenormallyrefertothefirstasaswitchedWANandtothesecondasapoint-to-pointWAN(Theswitched WAN connects the end systems, which usually comprise a router (internetworking connecting device) that connects to another LAN or WAN. The point-to-point WAN is normally a line leased from a telephone or cable TV provider that connects a home computer or a small LAN to an Internet service provider(lSP).This type of WAN is often used to provide Internet access.
+Metropolitan Area Networks
+A metropolitan area network (MAN) is a network with a size between a LAN and a WAN .It normally covers the area inside a town or a city. It is designed for customers who need a high-speed connectivity, normally to the Internet, and have end points spread over a city or part of city. A good example of a MAN is the part of the telephone company network that can provide a high-speed DSL line to the customer. Another Example is the cable TV network that originally was designed for cable TV, but today can also be used for high-speed data connection to the Internet.
+
+ALGORITHM:
+
+1. Create a simulator object
+2. Define different colours for different data flows
+3. Open a nam trace file and define finish procedure then close the tracefile, and execute nam on tracefile.
+4. Create a different node that forms a network.
+5. Create duplex links between the nodes and add Orientation to the nodes for setting a Connection
+6. Set up point to point Connection between nodes.
+7. Apply CBR and other parameters to analyse the performance of network..
+8. Schedule events and run the program.
+Program :
+
+# Filename: linkfail.tcl
+#——-Event scheduler object creation——–# 
+set ns [new Simulator]
+#———-creating trace objects—————-# 
+set nt [open test2.tr w]
+$ns trace-all $nt
+#———-creating nam objects—————-# 
+set nf [open test2.nam w]
+$ns namtrace-all $nf
+#———-Setting color ID—————-#
+$ns color 1 darkmagenta
+$ns color 2 yellow                                                                                                   
+$ns color 3 blue
+$ns color 4 green
+$ns color 5 black
+#———- Creating Network—————-# 
+set client0 [$ns node]
+set client1 [$ns node]
+set client2 [$ns node]
+set client3 [$ns node]
+set router1 [$ns node]
+set router2 [$ns node]
+set router3 [$ns node]
+set router4 [$ns node]
+set router5 [$ns node]
+set router6 [$ns node]
+set server [$ns node]
+#———- Creating Duplex Link—————-#
+$ns duplex-link $client0 $router1 1Mb 10ms DropTail
+$ns duplex-link $client1 $router1 1Mb 10ms DropTail
+$ns duplex-link $client2 $router1 1Mb 10ms DropTail
+$ns duplex-link $client3 $router1 1Mb 10ms DropTail
+
+$ns duplex-link $router1 $router2 2Mb 10ms DropTail
+$ns duplex-link $router2 $router3 2Mb 10ms DropTail
+$ns duplex-link $router3 $router4 2Mb 10ms DropTail
+$ns duplex-link $router4 $router5 2Mb 10ms DropTail
+$ns duplex-link $router5 $router6 2Mb 10ms DropTail
+
+$ns duplex-link $router6 $server 2Mb 10ms DropTail
+
+#.........orient of nodes.........#
+$ns duplex-link-op $router1 $client0 orient left-up
+$ns duplex-link-op $router1 $client1 orient left
+$ns duplex-link-op $router1 $client2 orient left-down 
+$ns duplex-link-op $router1 $client3 orient up
+
+$ns duplex-link-op $router1 $router2 orient right 
+$ns duplex-link-op $router2 $router3 orient down 
+$ns duplex-link-op $router3 $router4 orient roght
+$ns duplex-link-op $router4 $router5 orient up 
+$ns duplex-link-op $router5 $router6 orient right 
+$ns duplex-link-op $router6 $server orient right
+
+
+#————Labelling—————-#
+$ns at 0.0 "$client0 label Client1"
+$ns at 0.0 "$client1 label Client2"
+$ns at 0.0 "$client2 label Client3"
+$ns at 0.0 "$client3 label Client4"
+$ns at 0.0 "$router1 label router1"
+$ns at 0.0 "$router2 label router2"
+$ns at 0.0 "$router3 label router3"
+$ns at 0.0 "$router4 label router4"
+$ns at 0.0 "$router5 label router5"
+$ns at 0.0 "$router6 label router6"
+$ns at 0.0 "$server label server"
+
+$ns at 0.0 "$server color blue"
+$ns at 0.0 "$client0 color blue"
+$ns at 0.0 "$client1 color blue"
+$ns at 0.0 "$client2 color blue"
+$ns at 0.0 "$client3 color blue"
+
+$server shape hexagon
+$client0 shape hexagon
+$client1 shape hexagon
+$client2 shape hexagon
+$client3 shape hexagon
+$router1 shape square 
+$router2 shape square 
+$router3 shape square 
+$router4 shape square 
+$router5 shape square 
+$router6 shape square 
+
+#————Data Transfer between Nodes—————-# 
+# Defining a transport agent for sending#
+set tcp [new Agent/TCP]
+$ns attach-agent $client0 $tcp
+
+set sink [new Agent/TCPSink]
+$ns attach-agent $server $sink 
+
+$ns connect $tcp $sink
+
+set ftp [new Application/FTP]
+$ftp attach-agent $tcp 
+
+# Setting flow color
+$tcp set fid_ 4
+# data packet generation starting time
+$ns at 1.0 "$ftp start"
+# data packet generation ending time
+$ns at 6.0 "$ftp stop" 
+#———finish pocedure——–# 
+
+$ns attach-agent $client0 $tcp
+$ns attach-agent $server $sink 
+$ns connect $tcp $sink
+$ftp attach-agent $tcp 
+
+# Setting flow color
+$tcp set fid_ 4
+# data packet generation starting time
+$ns at 1.0 "$ftp start"
+# data packet generation ending time
+$ns at 6.0 "$ftp stop" 
+
+#———— Link Failure ————–#
+ 
+$ns rtmodel-at 2.880511 down $router3 $router4 
+
+#———— Link Failure Recovery ————–#
+
+$ns rtmodel-at 5.880511 up $router3 $router4
+
+#———finish pocedure——–# 
+proc finish {} {
+global ns nf nt
+$ns flush-trace 
+close $nf 
+close $nt
+puts "running nam…" 
+exec nam test2.nam & 
+exit 0
+}
+#Calling finish procedure
+$ns at 10.0 "finish"
+$ns run
+
+#——— Execution ——–# ns linkfail.tcl 
+#____Trace file ____ # gedit test2.tr
+# awk File for Throughput
+BEGIN {
+    recvdSize = 0
+    transSize = 0
+    startTime = 400
+    stopTime = 0
+}
+
+{
+    event = $1
+    time = $2
+    send_id = $3
+    rec_id = $4
+    pkt_size = $6
+    flow_id = $8
+
+    # Store start time
+    if (send_id == "0") {
+        if (time < startTime) {
+            startTime = time
+        }
+
+        if (event == "+") {
+            # Store transmitted packet's size
+            transSize += pkt_size
+        }
+    }
+
+    # Update total received packets' size and store packets arrival time
+    if (event == "r" && rec_id == "2") {
+        if (time > stopTime) {
+            stopTime = time
+        }
+        # Store received packet's size
+        if (flow_id == "1") {
+            recvdSize += pkt_size
+        }
+    }
+}
+
+END {
+    printf("%i\t%i\t%.2f\t%.2f\n", transSize, recvdSize, startTime, stopTime)
+}
+
+Connection between tr file and awk file
+
+awk -f linkfailthroughput.awk test2.tr > filename01
+gedit  filename01
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3 . Write a program for TCP and UDP communication between Clients and Servers
+
+
+EXP.No.1	TCP and UDP communication between Clients and Servers
+Aim: To Write a program for TCP and UDP communication between Clients and Servers.
+SOFTWAREREQUIRED:
+NS-2
+THEORY:
+Traditionally the transport layer was represented in TCP/IP by two protocols: TCP and UDP. IP is a host-to-host protocol ,meaning that it can deliver a packet from one physical device to another . UDP and TCP are transport level protocols responsible for delivery of a message from a process (running program) to another process. A new transport layer protocol, SCTP, has been devised to meet the needs of some newer applications.
+ALGORITHM:
+
+1. Create a simulator object
+2. Define different colours for different data flows
+3. Open a nam trace file and define finish procedure then close the tracefile, and execute namon tracefile.
+4. Create client and server nodes that forms a network nodes.
+5. Create duplexlinks between the nodes and add Orientation to the nodes for setting a Connection
+6. Setup TCP Connection between client and server
+7. Apply CBR Trafficover TCP.
+8. Schedule event sandrun the program.
+
+Program :
+
+# Filename: tcp.tcl
+#****************Event scheduler object creation************
+set ns [new Simulator]
+#**************creating trace objects****************
+set nt [open tcp.tr w]
+$ns trace-all $nt
+#************creating nam objects*******************
+set nf [open exp1.nam w]
+$ns namtrace-all $nf
+#*************Setting color ID*****************
+$ns color 1 darkmagenta
+$ns color 2 yellow
+$ns color 3 blue
+$ns color 4 green
+$ns color 5 black
+#************* Creating Network*********************
+set totalNodes 3
+for {set i 0} {$i < $totalNodes} {incr i} {
+set node_($i) [$ns node]
+}
+set server 0
+set router 1
+set client 2
+#*****************Creating Duplex Link*********************
+$ns duplex-link $node_($server) $node_($router) 2Mb 50ms DropTail
+$ns duplex-link $node_($router) $node_($client) 2Mb 50ms DropTail
+$ns duplex-link-op $node_($server) $node_($router) orient right
+$ns duplex-link-op $node_($router) $node_($client) orient right
+#********************Labelling*******************
+$ns at 0.0 "$node_($server) label Server"
+$ns at 0.0 "$node_($router) label Router"
+$ns at 0.0 "$node_($client) label Client"
+$ns at 0.0 "$node_($server) color blue"
+$ns at 0.0 "$node_($client) color blue"
+$node_($server) shape hexagon
+$node_($client) shape hexagon
+#**************Data Transfer between Nodes*************
+# Defining a transport agent for sending
+set tcp [new Agent/TCP]
+# Attaching transport agent to sender node
+$ns attach-agent $node_($server) $tcp
+# Defining a transport agent for receiving
+set sink [new Agent/TCPSink]
+# Attaching transport agent to receiver node
+$ns attach-agent $node_($client) $sink
+#Connecting sending and receiving transport agents
+$ns connect $tcp $sink
+#Defining Application instance
+set ftp [new Application/FTP]
+# Attaching transport agent to application agent
+$ftp attach-agent $tcp
+# Setting flow color
+$tcp set fid_ 4
+# data packet generation starting time
+$ns at 1.0 "$ftp start"
+# data packet generation ending time
+$ns at 6.0 "$ftp stop" 
+#**************finish procedure******************
+proc finish {} {
+global ns nf nt
+$ns flush-trace
+close $nf
+close $nt
+puts "running namâ€¦"
+exec nam exp1.nam &
+exit 0 
+}
+#Calling finish procedure
+$ns at 10.0 "finish"
+$ns run 
+#*************Execution ***************
+ns exp1.tcl
+set ns [new Simulator]
+set node_(0) [$ns node]
+set node_(1) [$ns node]
+# Defining a transport agent for sending
+set udp [new Agent/UDP]
+# Attaching transport agent to sender node
+$ns attach-agent $node_(0) $udp
+# Defining a transport agent for receiving
+set null [new Agent/Null]
+# Attaching transport agent to receiver node
+$ns attach-agent $node_(1) $null
+#Connecting sending and receiving transport agents
+$ns connect $udp $null
+#Defining Application instance
+set cbr [new Application/Traffic/CBR]
+# Attaching transport agent to application agent
+$cbr attach-agent $udp
+#Packet size in bytes and interval in seconds definition
+$cbr set packetSize_ 512
+$cbr set interval_ 0.1
+# data packet generation starting time
+$ns at 1.0 "$cbr start"
+# data packet generation ending time
+$ns at 6.0 "$cbr stop
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+4. Implementation of Distance Vector Routing Algorithm. 
+
+AIM: To simulate and study the Distance Vector routing algorithm using simulation.
+   SOFTWAREREQUIRED:
+NS-2
+THEORY:
+Distance Vector Routing is one of the routing algorithms in a Wide Area Network for computing shortest  path between source and destination .The Router is one main devices used in a wide area network . The main task of the router is Routing. It forms the routing table and delivers the packets depending upon the routes in the table-either directly or via an intermediate devices.
+Each router initially has information about its all neighbors. Then this information will be shared among nodes.
+   ALGORITHM:
+1. Create a simulator object
+2. Define different colors for different data flows
+3. Open a nam trace file and define finish procedure then close the trace file, and execute nam on trace file.
+4. Create n number of nodes using for loop
+5. Create duplex links between the nodes
+6. Setup UDP Connection between n(0) and n(5)
+7. Setup another UDP connection between n(1) and n(5)
+8. Apply CBR Traffic over both UDP connections
+9. Choose distance vector routing protocol to transmit data from sender to receiver.
+10. Schedule events and run the program.
+PROGRAM:
+
+set ns [new Simulator]
+set nr [open thro.tr w]
+$ns trace-all $nr
+set nf [open thro.nam w]
+$ns namtrace-all $nf
+proc finish { } {
+global ns nr nf
+$ns flush-trace
+close $nf
+close $nr
+exec nam thro.nam &
+exit 0
+}
+for { set i 0 } { $i < 12} { incr i 1 } {
+set n($i) [$ns node]}
+for {set i 0} {$i < 8} {incr i} {
+$ns duplex-link $n($i) $n([expr $i+1]) 1Mb 10ms DropTail }
+$ns duplex-link $n(0) $n(8) 1Mb 10ms DropTail
+$ns duplex-link $n(1) $n(10) 1Mb 10ms DropTail
+$ns duplex-link $n(0) $n(9) 1Mb 10ms DropTail
+$ns duplex-link $n(9) $n(11) 1Mb 10ms DropTail
+$ns duplex-link $n(10) $n(11) 1Mb 10ms DropTail
+$ns duplex-link $n(11) $n(5) 1Mb 10ms DropTail
+set udp0 [new Agent/UDP]
+$ns attach-agent $n(0) $udp0
+set cbr0 [new Application/Traffic/CBR]
+$cbr0 set packetSize_ 500
+$cbr0 set interval_ 0.005
+$cbr0 attach-agent $udp0
+set null0 [new Agent/Null]
+$ns attach-agent $n(5) $null0
+$ns connect $udp0 $null0
+set udp1 [new Agent/UDP]
+$ns attach-agent $n(1) $udp1
+set cbr1 [new Application/Traffic/CBR]
+$cbr1 set packetSize_ 500
+$cbr1 set interval_ 0.005
+$cbr1 attach-agent $udp1
+set null0 [new Agent/Null]
+$ns attach-agent $n(5) $null0
+$ns connect $udp1 $null0
+$ns rtproto DV
+$ns rtmodel-at 10.0 down $n(11) $n(5)
+$ns rtmodel-at 15.0 down $n(7) $n(6)
+$ns rtmodel-at 30.0 up $n(11) $n(5)
+$ns rtmodel-at 20.0 up $n(7) $n(6)
+$udp0 set fid_ 1
+$udp1 set fid_ 2
+$ns color 1 Red
+$ns color 2 Green
+$ns at 1.0 "$cbr0 start"
+$ns at 2.0 "$cbr1 start"
+$ns at 45 "finish"
+$ns run
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+5 . Write a program to establish Point-to-Point communication between client and server and analyze its performance using various parameters. 
+
+Aim: To Write a program to establish Point-to-Point communication between client and server and analyze its performance using various parameters.
+     SOFTWAREREQUIRED:
+NS-2
+THEORY:
+A network is a set of connected devices. Whenever we have multiple devices, we have the problem of how to connect them to make one-to-one communication possible. One solution is to make a point-to-point connection between each pair of devices (a mesh topology) or between a central device and every other device (a star topology). These methods, however, are impractical and wasteful when applied to very large networks. The number and length of the links require too much infrastructure to be cost-efficient,
+and the majority of those links would be idle most of the time. Other topologies employing multipoint connections, such as a bus, are ruled out because the distances between devices and the total number of devices increase beyond the capacities of the media and equipment.
+ALGORITHM:
+
+1. Create a simulator object
+2. Define different colors for different data flows
+3. Open a nam trace file and define finish procedure then close the tracefile, and execute nam on tracefile.
+4. Create a client and server node that forms a point to point communication.
+5. Create duplex links between the nodes and add Orientation to the nodes for setting a Connection
+6. Setup point to point Connection between client and server
+7. Apply CBR and other parameters to analyse the performance of network..
+8. Schedule events and run the program.
+PROGRAM:
+
+# Filename: test1.tcl
+#***********Event scheduler object creation***************
+set ns [new Simulator]
+#**************creating trace objects*****************
+set nt [open test1.tr w]
+$ns trace-all $nt
+#*************creating nam objects**************
+set nf [open test1.nam w]
+$ns namtrace-all $nf
+ 
+#**************Setting color ID*******************
+$ns color 1 darkmagenta
+$ns color 2 yellow
+$ns color 3 blue
+$ns color 4 green
+$ns color 5 black
+#****************Creating Network******************
+set totalNodes 3
+for {set i 0} {$i < $totalNodes} {incr i} {
+set node_($i) [$ns node]
+}
+set server 0
+set router 1
+set client 2
+#************Creating Duplex Link******************
+$ns duplex-link $node_($server) $node_($router) 2Mb 50ms DropTail
+$ns duplex-link $node_($router) $node_($client) 2Mb 50ms DropTail
+$ns duplex-link-op $node_($server) $node_($router) orient right
+$ns duplex-link-op $node_($router) $node_($client) orient right
+#************Labelling********************
+$ns at 0.0 "$node_($server) label Server"
+$ns at 0.0 "$node_($router) label Router"
+$ns at 0.0 "$node_($client) label Client"
+$ns at 0.0 "$node_($server) color blue"
+$ns at 0.0 "$node_($client) color blue"
+$node_($server) shape hexagon
+$node_($client) shape hexagon 
+#*************finish procedure********************
+proc finish {} { 
+global ns nf nt
+$ns flush-trace
+close $nf
+close $nt
+puts "running namâ€¦"
+exec nam test1.nam &
+exit 0
+}
+#Calling finish procedure
+$ns at 10.0 "finish"
+$ns run
+#**************** Execution********************
+#ns
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+6 Create Various Network Topologies with N-Nodes BUS TOPOLOGY
+
+Aim: To create scenario and study the performance of token bus protocol through simulation
+
+   SOFTWAREREQUIREMENTS:
+NS-2
+THEORY:
+Token bus is a LAN protocol operating in the MAC layer. Token bus is standardized as per IEEE 802.4.Token bus can operate at speeds of 5Mbps, 10Mbps and 20Mbps. The operation of token bus is as follows: Unlike token ring in token bus the ring topology is virtually created and maintained by the protocol. A node can receive data even if it is not part of the virtual ring, a node joins the virtual ring only if it has data to transmit. In token bus data is transmitted to the destination node only where as other control frames is hop to hop. After each data transmission there is a solicit_successsor control frame transmitted which reduces the performance of the protocol.
+   ALGORITHM:
+1. Create a simulator object
+2. Define different colors for different data flows
+3. Open a nam trace file and define finish procedure then close the tracefile, and execute nam on tracefile.
+4. Create five nodes that forms a networknumberedfrom0to 4
+5. Create duplex links between the nodes and add Orientation to the nodes for setting a LAN topology
+6. Set up TCP Connection between n(1)and n(3)
+7. Apply CBR Traffic over TCP.
+8. Schedule events and run the program.
+PROGRAM:
+set ns [new Simulator]
+#---Open the Trace files---#
+set file1 [open Tcpred4.tr w]
+$ns trace-all $file1
+#--Open the NAM trace file----#
+set file2 [open Tcpred4.nam w]
+$ns namtrace-all $file2
+#Define different colors for data flows (for NAM)
+$ns color 1 Blue
+$ns color 2 Red
+#Create six nodes
+set n0 [$ns node]
+set n1 [$ns node]
+set n2 [$ns node]
+set n3 [$ns node]
+set n4 [$ns node]
+set n5 [$ns node]
+#create links between the nodes
+$ns duplex-link $n5 $n0 2Mb 10ms DropTail
+$ns duplex-link $n0 $n5 2Mb 10ms DropTail
+$ns simplex-link $n5 $n1 2Mb 10ms DropTail
+$ns simplex-link $n5 $n2 0.3Mb 100ms DropTail
+$ns simplex-link $n5 $n3 0.3Mb 100ms DropTail
+$ns simplex-link $n5 $n4 0.5Mb 40ms DropTail
+#$ns duplex-link $n3 $n5 0.5Mb 30ms DropTail
+#Give node position (for NAM)
+$ns duplex-link-op $n5 $n0 orient right-down
+$ns duplex-link-op $n0 $n5 orient left-up
+$ns simplex-link-op $n5 $n1 orient right-up
+$ns simplex-link-op $n5 $n2 orient right
+$ns simplex-link-op $n5 $n3 orient right-down
+$ns simplex-link-op $n5 $n4 orient left-down
+
+#Set Queue Size of link (n2-n3) to 10
+$ns queue-limit $n5 $n0 20
+#Setup a TCP connection
+set tcp [new Agent/TCP/Newreno]
+$ns attach-agent $n5 $tcp
+set sink [new Agent/TCPSink/DelAck]
+$ns attach-agent $n0 $sink
+$ns connect $tcp $sink
+$tcp set fid_ 1
+$tcp set window_ 8000
+$tcp set packetSize_ 552
+#Setup a FTP over TCP connection
+set ftp [new Application/FTP]
+$ftp attach-agent $tcp
+$ftp set type_ FTP
+$ns at 1.0 "$ftp start"
+$ns at 10.0 "$ftp stop"
+#$ns at 10.5 "$cbr stop"
+
+#Define a 'finish' procedure
+proc finish {} {
+        global ns file1 file2
+        $ns flush-trace
+        close $file1
+        close $file2
+        exec nam Tcpred4.nam &
+        exit 0
+}
+
+$ns at 12.0 "finish"
+$ns run
+
+Awk  script
+
+BEGIN {
+count=0; }
+{
+if($1=="d") 
+count++;
+}
+END {
+printf("The Total no of Packets Dropped due to Congestion :%d\n\n",count);
+}
+Command for execution
+awk -f packetdrop.awk Tcpred4.t
+7 (A). Implementation of EIGRP
+
+AIM: To Implement the EIGRP.
+
+SOFTWAREREQUIRED:
+NS-2/3
+  THEORY:
+Enhanced Interior Gateway Routing Protocol (EIGRP) is a network protocol that enables routers to exchange information more efficiently than earlier network protocols, such as Interior Gateway Routing Protocol(IGRP) or Border Gateway Protocol (BGP).
+EIGRIP grew out of Cisco's efforts in the 1990s to address the limitations of these protocols. For example, BGP was slow to find an alternate path if a network link went down (slow convergence), making it difficult to support Cisco's globally distributed work force. In addition, the protocol didn't provide route summarization. As a result, administrator shad to change routing tables manually to accommodate geographic expansions, a time-consuming process.
+     PROGRAM:R1:
+enable
+show ip routeconft
+routerEIGRP<ASNumber>
+Ex:	routerEIGRP100
+network192.168.1.0
+network 11.0.0.0doshow ip route
+   R2:
+enable
+show ip routeconft
+routerEIGRP100
+network11.0.0.0
+network12.0.0.0
+network 172.16.0.0doshow ip route
+Display the result
+D–indicates EIGRP protocol
+   R3:
+Enable
+Show ip
+Routeconft
+routerEIGRP100
+network10.0.0.0
+network 12.0.0.0do show
+ip routeend
+show ip protocols
+show ip EIGRP neighbors showip EIGRP topology
+Display the result
+D–indicates EIGRP  protocol
+
+   OUTPUT: Verify the communication
+PC-1: ip config
+ping172.16.0.2
+ping10.0.0.2
+Tracert10.0.0.2
+PC-2:ping192.168.1.2
+ping10.0.0.2
+Tracert 10.0.0.2
+PC-3:ping172.16.0.2
+ping192.168.1.2
+Tracert 192.168.1.2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+7(B) .  Study and implement subnet masking
+AIM: To study and implement subnet masking.
+SOFTWAREREQUIRED:
+NS-2/3
+THEORY:
+IP Addresses contain the Subnet Number and Host Number. The Subnet Mask tells you where the subnet number nds and the host number begins.
+Classful NetworksA, B, C, D, E are now gone now use CIDR (Class less Inter-Domain Routing (CIDR, pronunciation: /?sa?.dr/or/?si.dr/) is a method for allocating IP addresses and
+Routing Internet Protocol packets. The Internet Engineering Task Force introduced CIDR in 1993 to replace the previous addressing architecture of classful network design in the Internet. Its goal was to slow the growth of routing tables on routers across the Internet, and to help slow the rapid exhaustion of IPv4addresses.CIDR notation is syntax for specifying IP addresses and their associated routing prefix. It appends a slash character to the address and the decimal number of leading bits of the routing prefix, e.g.,192.168.2.0/24forIPv4,and 2001:db8::/32 forIPv6.)
+The Highest Address in a Subnet Range is the Broad cast address
+To determine the number of subnets (n is the number of bits used)= 2nTo determine number of Hosts = 2n-2
+1. Information about network portion and host portion in the IP address is 192.168.1.0/24.Assume number of networks is 25. Then calculate a) Subnet Mask b) Slash format c)Number of networks d) Number of hosts per network.
+Given IP Address is in class–C
+
+
+IPAddress: 192.168.1.0
+
+
+a) Subnet Mask: 255.255.255.0
+: 11111111.11111111.11111111.11111000
+:	8	+	8	+	8	+	5=29
+: 255.255.255.248	(or)
+: 192.168.1.0/29
+b) Subnet mask in slash format:192.168.1.0/29
+c) Number of Networks =2N
+Where N is the number of 1’s= 5
+Number of Networks =2N=25=32.
+d) Number of hosts per network =2H- 2(H is the number of zeros)
+=23-2 =8 -2 =6.
+8 (A) Implement Routing Information Protocol.
+AIM: To Implement the Routing Information Protocol.
+
+SOFTWAREREQUIRED:
+
+NS-2/3
+THEORY:
+Routing Information Protocol (RIP) is a dynamic routing protocol that uses hop count as a routing metric to find the best path between the source and the destination network. It is a distance-vector routing protocol that has an A value of 120 and works on the Network layer of the OSI model. RIP uses port number 520.
+Hop Count	
+Hop count is the number of routers occurring in between the source and destination network. The path with the lowest hop count is considered as the best route to reach a network and therefore placed in the routing table. RIP prevents routing loops by limiting the number of hops allowed in a path from source and destination. The maximum hop count allowed for RIP is 15 and a hop count of 16 is considered as network unreachable.
+PROGRAM:
+
+FromR1:
+enable
+show ip routeconft
+routerRIP
+network192.168.1.0
+network 11.0.0.0doshow ip route
+FromR2:
+enableconf trouterRIP
+network11.0.0.0
+network12.0.0.0
+network 172.16.0.0doshow ip route
+FromR3:
+enableconf trouterRIP
+network12.0.0.0
+network10.0.0.0
+
+doshow ip route
+
+OUTPUT: Verify the Communication
+
+pc – 1ipconfig
+ping172.16.0.2
+ping10.0.0.2
+trace rt10.0.0.2
+8 (b) Create Various Network Topologies with N-Nodes STARTOPOLOGY
+
+   AIM: To create scenario and study the performance of token ring protocols through simulation.
+SOFTWAREREQUIREMENTS: NS-2
+   THEORY:
+Star networks are one of the most common computer network topologies. In its simplest form, a star network consists of one central switch, hub or computer, which acts as a conduit to transmit messages. This consists of a central node, to which all other nodes are connected; this central node provides a common connection point for all nodes through a hub. In star topology, every node (computer work station or any other peripheral) is connected to a central node called a hub or switch. The switch is the server and the peripherals are the clients. Thus, the hub and leaf nodes, and the transmission lines between them, form a graph with the topology of a star. If the central node is passive, the originating node must be able to tolerate the reception of an echo of its own transmission, delayed by the two-way transmission time (i.e. to and from the central node) plus any delay generated in the central node. An active star network has an active central node that usually has the means to prevent echo-related problems.
+The star topology reduces the damage caused by line failure by connecting all of the systems to a central node. When applied to a bus-based network, this central hub rebroadcasts all transmissions received from any peripheral node to all peripheral nodes on the network, sometimes including the originating node. All peripheral nodes may thus communicate with all others by transmitting to, and receiving from, the centralnodeonly.Thefailureofatransmissionlinelinkinganyperipheralnodetothecentralnodewillresultintheisolationofthatperipheral node from all others, but there set of the systems will be unaffected.
+   ALGORITHM:
+1. Create a simulator object
+2. Define different colors for different data flows
+3. Open a nam trace file and define finish procedure then close the trace file, and execute nam on trace file.
+4. Create six nodes that forms a network numbered from 0to5
+5. Create duplex links between the nodes to form a STAR Topology
+6. Set up TCP Connection between n(1)and n(3)
+7. Apply CBR Traffic over TCP
+8. Schedule events and run the program
+Program :
+
+#Create a simulator object
+set ns [new Simulator]
+#Open the nam trace file
+set nf [open out.nam w]
+$ns namtrace-all $nf
+#Define a 'finish' procedure
+proc finish {} {
+global ns nf
+$ns flush-trace
+#Close the trace file
+close $nf
+#Executenam on the trace file
+exec nam out.nam &
+exit 0
+}
+#Create six nodes
+set n0 [$ns node]
+set n1 [$ns node]
+set n2 [$ns node]
+set n3 [$ns node]
+set n4 [$ns node]
+set n5 [$ns node]
+#Change the shape of center node in a star topology
+$n0 shape square
+#Create links between the nodes
+$ns duplex-link $n0 $n1 1Mb 10ms DropTail
+$ns duplex-link $n0 $n2 1Mb 10ms DropTail
+$ns duplex-link $n0 $n3 1Mb 10ms DropTail
+$ns duplex-link $n0 $n4 1Mb 10ms DropTail
+$ns duplex-link $n0 $n5 1Mb 10ms DropTail
+#Create a TCP agent and attach it to node n0
+set tcp0 [new Agent/TCP]
+$tcp0 set class_ 1
+$ns attach-agent $n1 $tcp0
+#Create a TCP Sink agent (a traffic sink) for TCP and attach it to node n3
+set sink0 [new Agent/TCPSink]
+$ns attach-agent $n3 $sink0
+#Connect the traffic sources with the traffic sink
+$ns connect $tcp0 $sink0
+# Create a CBR traffic source and attach it to tcp0
+set cbr0 [new Application/Traffic/CBR]
+$cbr0 set packetSize_ 500
+$cbr0 set interval_ 0.01
+$cbr0 attach-agent $tcp0
+#Schedule events for the CBR agents
+$ns at 0.5 "$cbr0 start"
+$ns at 4.5 "$cbr0 stop"
+#Call the finish procedure after 5 seconds of simulation time
+$ns at 5.0 "finish"
+#Run the simulation
+$ns run
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+9 (B) ring topology
+
+#This Program will create a ring topology using less number of statements in TCL Language
+set ns [new Simulator]
+$ns rtproto DV
+
+set nf [open out.nam w]
+$ns namtrace-all $nf
+
+proc finish {} {
+        global ns nf
+        $ns flush-trace
+        close $nf
+        exec nam out.nam
+        exit 0
+        }
+
+#Creating Nodes
+for {set i 0} {$i<7} {incr i} {
+set n($i) [$ns node]
+}
+
+#Creating Links
+for {set i 0} {$i<7} {incr i} {
+$ns duplex-link $n($i) $n([expr ($i+1)%7]) 512Kb 5ms DropTail
+}
+
+$ns duplex-link-op $n(0) $n(1) queuePos 1
+$ns duplex-link-op $n(0) $n(6) queuePos 1
+
+#Creating UDP agent and attching to node 0
+set udp0 [new Agent/UDP]
+$ns attach-agent $n(0) $udp0
+
+#Creating Null agent and attaching to node 3
+set null0 [new Agent/Null]
+$ns attach-agent $n(3) $null0
+
+$ns connect $udp0 $null0
+
+
+#Creating a CBR agent and attaching it to udp0
+set cbr0 [new Application/Traffic/CBR]
+$cbr0 set packetSize_ 1024
+$cbr0 set interval_ 0.01
+$cbr0 attach-agent $udp0
+
+$ns rtmodel-at 0.4 down $n(2) $n(3)
+$ns rtmodel-at 1.0 up $n(2) $n(3)
+
+$ns at 0.01 "$cbr0 start"
+$ns at 1.5 "$cbr0 stop"
+
+$ns at 2.0 "finish"
+$ns run
